@@ -86,7 +86,7 @@ export const en: Catalog = {
   "landing.fun.outside": "From outside it looks like",
   "landing.fun.spec": "built from",
   "landing.fun.count": "profiles to choose from",
-  "landing.fun.soon": "soon — in 4.3.0",
+  "landing.fun.soon": "soon",
 
   "landing.more.title": "What else is here",
   "landing.more.mergekeys":
@@ -138,11 +138,35 @@ export const en: Catalog = {
   "gen.zone.mimic.note": "What the junk packets will look like. Each profile is built from the text of the standard rather than by eye.",
   "gen.zone.fp.note": "Packet sizes taken from a real browser, so the lengths match what usually leaves this device.",
   "gen.zone.cps.note": "Fake packets sent before the handshake. The receiver never parses them — they exist only for the observer.",
+  "gen.sw.title": "Protocol switches",
+  "gen.sw.note": "Each turns on a mechanism plain WireGuard does not have. Changing the version puts them where that version recommends.",
+  "gen.sw.preset": "Recommended for {version}",
+  "gen.sw.presetHint": "Put the switches and the MTU back to this version's defaults",
+  "gen.sw.rev30": "Cipher and rhythm",
+  "gen.sw.rev31": "Trailers and replies",
+  "gen.sw.only31": "Only in 3.1: random trailers, no cookie replies, and with them disabled H1-H4 and a shared S1-S4. Switch the version to open them.",
+  "gen.sw.linked.title": "Opened by encryption and trailers",
+  "gen.sw.linked.locked": "Turn on header encryption and random trailers to open “Disable H1-H4” and “Unite S1-S4”.",
+  "gen.sw.hpk.title": "Header encryption",
+  "gen.sw.hpk.desc": "The packet type and housekeeping fields leave encrypted with ChaCha20, the handshake whole. S1-S4 stay at 12 bytes or more: the nonce comes from them.",
+  "gen.sw.hpk.managed":
+    "Amnezia VPN generates the key itself: tick HeaderProtectionKey in the server's protocol settings in the app. It is not written to the config. Without that box there is no encryption, and disabled H1-H4 would go out in the clear.",
+  "gen.sw.cpa.title": "Traffic padding",
+  "gen.sw.cpa.desc": "Every data packet gets a random extra instead of the even 16-byte alignment, so sizes stop repeating.",
+  "gen.sw.timers.title": "Floating timers",
+  "gen.sw.timers.desc": "Rekeys and keepalives run on random intervals rather than WireGuard's clock.",
+  "gen.sw.trailers.title": "Random trailers",
+  "gen.sw.trailers.desc": "Every packet is lengthened by a random tail. Both ends need it: a receiver without it drops the lengthened handshakes.",
+  "gen.sw.cookies.title": "No cookie replies",
+  "gen.sw.cookies.desc": "The device stays silent where it would send a Cookie Reply. Under load behind NAT this can break keepalive.",
+  "gen.sw.narrowH.title": "Narrow H1-H4",
+  "gen.sw.narrowH.desc": "With trailers, the receiver loses transport packets in proportion to the width of H1-H3. Narrows every range to 20,000.",
+  "gen.sw.disableH.title": "Disable H1-H4",
+  "gen.sw.disableH.desc": "H1-H4 become the standard 1, 2, 3, 4, as Amnezia VPN writes them. Under encryption the ranges hide nothing, and with trailers their width costs packets.",
+  "gen.sw.uniteS.title": "Unite S1-S4",
+  "gen.sw.uniteS.desc": "One padding value for all four packet types, as the recommendations have it. Lengths still differ: the message base sizes do not match.",
+  "gen.headers.disabled": "Disabled: the standard 1, 2, 3, 4 under header encryption",
   "gen.zone.transport": "Transport protection",
-  "gen.zone.transport.note": "Everything else on this page hides the handshake. This hides the established tunnel: headers are encrypted, transport packets are padded, and the timers stop being constants.",
-  "gen.narrowH.label": "Reduce H1–H4 spread",
-  "gen.narrowH.detail": "Matters for 3.1: wide H1-H4 (up to 100M) make amneziawg-go spend visibly more CPU classifying packets, and with HeaderProtection on they misclassify on overlapping intervals. The switch narrows every range to ~20k (H4 ~30k) and fixes the bug at the cost of slightly weaker header obfuscation. Off by default.",
-  "gen.narrowH.help": "Wide H1–H4 in 3.1 is a bug: the Go client scans large header intervals, causing CPU spikes and rare handshake failures with HeaderProtection. Narrow ranges (~20k) remove the issue but make headers slightly less diverse.",
   "gen.junk.size": "Packet size",
   "gen.junk.sizeNote": "Jmin and Jmax come from here. On 3.0 the same choice sets the padding and timer spread.",
   "gen.junk.recommendedMark": "recommended",
@@ -158,9 +182,6 @@ export const en: Catalog = {
   "gen.headers.clash": "Overlapping",
   "gen.headers.ok": "No overlap",
   "gen.sizes.floor": "12-byte floor with header protection on",
-  "gen.sameS.label": "Identical S1–S4",
-  "gen.sameS.hint":
-    "The docs-compat mode: one value for all four S. We do not recommend it: identical S on everyone who followed the advice is a shared fingerprint. The random tail smears packet lengths and absorbs the damage; without tails keep them distinct.",
 
   "gen.help.open": "What these parameters are",
   "gen.act.generate": "Generate",
@@ -305,7 +326,7 @@ export const en: Catalog = {
   "client.note.goNoTagC":
     "The tunnel here is amneziawg-go, and it has no <c> at all: its vocabulary is <b>, <t>, <r>, <rc>, <rd>, <d>, <ds>, <dz>. The packet counter exists only in the Linux kernel module.",
   "client.note.amneziaVpnHpk":
-    "Amnezia VPN manages HeaderProtectionKey itself: flip the toggle in the app and it generates the key, so this tool leaves the field out of configs built for it.",
+    "Amnezia VPN generates HeaderProtectionKey itself: tick HeaderProtectionKey in the server's protocol settings and the app writes the key onto the server and into the client configs. That is why this tool leaves the field out. If the server was not set up through the app, pick the AmneziaWG client instead: a config imported without a key cannot have protection switched on in the app.",
   "client.engine.unverified": "an unconfirmed engine",
   "client.note.kmodTags":
     "The only engine where <c> works: the packet counter is implemented here and nowhere else. It does not know <d>, <ds> or <dz>, which exist only in amneziawg-go. An unfamiliar tag takes the whole junk packet down with it.",
@@ -317,6 +338,8 @@ export const en: Catalog = {
     "The only client outside Amnezia's own ecosystem that reaches AWG 3.0, and only with version: 3 in the outbound options. Below that it runs the older implementation, without header protection.",
   "client.note.opnsenseBounds":
     "The plugin bounds Jc to 1-128 and starts Jmin and Jmax at 1 rather than 0. It takes H values as either a number or a range.",
+  "client.note.wgEasyHCap":
+    "The panel accepts H1-H4 only up to 2,147,483,647, half of what the protocol allows, and will not save an interface with anything higher. Ranges here are laid out under that cap. Underneath it is awg-quick: the kernel module when the host has it, amneziawg-go when it does not, so only the tags both understand are used.",
   "client.note.engineUnverified":
     "What this client uses to read the I1–I5 chain could not be established from source. It keeps the tags both known engines understand; <c> is withheld, because an unfamiliar tag rejects not itself but the whole packet.",
   "gen.client.releaseCurrent": "Current client version",
@@ -376,7 +399,7 @@ export const en: Catalog = {
   "conf.awg3Hpk":
     "AWG 3.0 — shared header protection key (identical on both ends)",
   "conf.awg3HpkManaged":
-    "No HeaderProtectionKey line: the app manages the key itself, enabled by its toggle and picked up on config import, so S1-S4 above stay at 12+ for the cipher nonce",
+    "No HeaderProtectionKey line: Amnezia VPN generates the key. Tick HeaderProtectionKey in the server's protocol settings in the app, or there is no encryption. S1-S4 above stay at 12+ for the cipher nonce",
   "conf.awg3Cpa": "AWG 3.0 — random transport packet padding",
   "conf.blockHeaders": "Packet type markers. Must match the server and must not overlap",
   "conf.blockSizes": "Random padding in front of each kind of packet",
@@ -663,7 +686,7 @@ export const en: Catalog = {
   "about.chip.protocols.value": "AmneziaWG and XRay",
   "about.chip.protocols.label": "Two protocols",
   "about.chip.params.label": "Generated parameters",
-  "about.chip.params.hint": "23 for AmneziaWG and 74 for XRay",
+  "about.chip.params.hint": "{awg} for AmneziaWG and {xray} for XRay",
   "about.chip.tests.label": "Automated tests",
   "about.chip.tests.hint": "Run on every build",
   "about.chip.clients.label": "Supported clients",
@@ -946,6 +969,8 @@ export const en: Catalog = {
     "{a} and {b} produce the same packet length — two message types become indistinguishable by size, which is exactly what the padding is there to prevent.",
   "find.awg.h_overlap":
     "The {a} and {b} ranges overlap: the receiver cannot tell one message type from the other.",
+  "find.awg.h_width_loss":
+    "With RandomTrailers on, the receiver tests every transport packet against H1-H3 and drops the ones that happen to land inside. At these widths that is {percent}% of traffic, one packet in {oneIn}, and nothing logs or counts it. Narrow H1-H3 to a few tens of thousands; H4 is checked last and can stay as wide as you like.",
   "find.awg.h_reserved":
     "{key} falls in the 1–4 range, reserved for WireGuard's own message types.",
   "find.awg.h_over_client":
@@ -954,6 +979,8 @@ export const en: Catalog = {
     "{key}: the CPS chain syntax is not valid.",
   "find.awg.cps_tag_unsupported":
     "The {tag} tag is not supported by {client}.",
+  "find.awg.cps_chain_too_long":
+    "I1-I5 take {total} bytes over netlink together, more than the {max} the AmneziaWG kernel module can carry in one message. On a server or router running the module the interface comes up, `awg show` answers “Message too long” and nothing gets through. amneziawg-go clients are not affected. Shorten the chains or keep the mimicry to I1-I3.",
   "find.awg.conf.not_obfuscated":
     "No AmneziaWG parameters (H/S/J/I) in this config — it looks like plain WireGuard.",
   "find.awg.conf.template":
@@ -1243,7 +1270,7 @@ export const en: Catalog = {
   "awgParam.HeaderProtectionKey": "ChaCha20 key for encrypting headers. The nonce comes from the first 12 bytes of the S padding.",
   "awgParam.ContentPaddingAddition": "Random padding inside the encrypted payload. The receiver does not need to know it.",
   "awgParam.timer": "A protocol timer. Each side keeps its own.",
-"awgParam.RandomTrailers": "A random-length trailer appended to every outgoing packet. Needs no agreement with the other side.",
+"awgParam.RandomTrailers": "A random-length trailer appended to every outgoing packet. Both ends need it: a receiver with it off expects handshakes of an exact size and drops the longer ones. With it on, the width of H1-H3 starts costing transport packets, so keep those ranges narrow.",
 "awgParam.DisableCookies": "The device stays silent instead of sending a Cookie Reply. Breaks NAT keepalive under load, so turn it on knowingly.",
   "xrayParam.inbound.port": "The port the server listens on and the client connects to.",
   "xrayParam.vless.id": "The client UUID. A non-UUID string is accepted too — the core hashes it into one.",

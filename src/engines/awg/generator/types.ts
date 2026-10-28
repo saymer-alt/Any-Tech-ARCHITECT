@@ -20,6 +20,7 @@ export type MimicProfile =
   | "tls_to_quic"
   | "quic_burst"
   | "dns_query"
+  | "stun"
   | "random";
 
 /**
@@ -36,6 +37,17 @@ export type BrowserProfile = string;
 
 // Lives in shared/fingerprints, beside the data it describes.
 export type { BfpSlot } from "@/shared/fingerprints";
+
+/**
+ * How a profile should shape one packet, beyond what the user chose.
+ *
+ * Set by the generator, never by the user: `compact` is asked for when the
+ * whole I1–I5 chain would not fit the kernel module's netlink budget (see
+ * ./chainBudget.ts). A profile with no shorter form of itself ignores it.
+ */
+export interface ProfileOptions {
+  compact?: boolean;
+}
 
 /** Input parameters for the generator. */
 export interface GeneratorInput {
@@ -110,12 +122,13 @@ export interface GeneratorInput {
   /**
    * AWG 3.1 — narrow H1-H4 ranges to work around an AmneziaWG bug.
    *
-   * Wide H1-H4 spreads (up to 100M) cause amneziawg-go 3.1 to spend
-   * noticeably more CPU classifying packets and, on some builds, to
-   * misclassify due to overlapping interval checks when header protection
-   * is on. Clamping each range to ~20k fixes the bug at the cost of
-   * slightly less header obfuscation. Only meaningful on 3.1; other
-   * versions ignore it. Optional for backwards compat with tests.
+   * With RandomTrailers on, amneziawg-go tests every transport packet
+   * against H1-H3 and drops the ones whose bytes land inside, so each
+   * range costs its width out of 2^32 of the traffic (issue #14). The
+   * switch caps each range at 20,000 and keeps the starts close to their
+   * zone's base, at the cost of slightly less varied headers. Only
+   * meaningful on 3.1; other versions ignore it. Optional for backwards
+   * compat with tests.
    */
   useNarrowH?: boolean;
 
@@ -132,6 +145,18 @@ export interface GeneratorInput {
    * backwards compat with stored inputs.
    */
   useSameS?: boolean;
+
+  /**
+   * Write H1-H4 as the standard 1, 2, 3, 4 instead of drawing ranges.
+   *
+   * What Amnezia VPN itself writes for its 3.x containers. With header
+   * protection on, the type field leaves encrypted, so the ranges hide
+   * nothing on the wire; with random trailers on, their width is exactly
+   * what makes the receiver drop transport packets (issue #14). Acts only
+   * on 3.1 with both of those on, like `useSameS`, and the page shows it
+   * only then. Optional for backwards compat with stored inputs.
+   */
+  useDisableH?: boolean;
 }
 
 /**
